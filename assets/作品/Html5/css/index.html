@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>eBook</title>
+    <link href="css/normalize.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="css/summernote/summernote-bs4.min.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="css/toolbar.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="css/jquery-smoothness-ui.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="css/farbtastic.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="css/reset.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="css/window_layout.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="css/jquery-ui.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="css/OpenDialog.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="css/jquery.flipster.min.css" rel="stylesheet" type="text/css" media="all" />
+
+
+    <script>
+        var CustomizeName = "Sanmin";
+        var CustomizeBuildDate = "2021-04-13";
+        var CustomizeVersion = "v1.2.11";
+    </script>
+</head>
+
+<body>
+    <div class="loadingText">
+        <img src="ToolBar/loading.gif">
+    </div>
+    <div id="example" style="display: none;">
+        <img id="backButton" src="ToolBar/Home-icon.png" onclick="cardboardInit()">
+    </div>
+    <div id="HamastarWrapper">
+        <div id="WebBox">
+            <canvas id="CanvasLeft" class="canvas" width="1024px" height="768px"></canvas>
+            <canvas id="CanvasRight" class="canvas" width="1024px" height="768px"></canvas>
+            <canvas id="Buffer" class="canvas" width="1024px" height="768px" style="display: none"></canvas>
+        </div>
+        <div id="Gallery">
+            <canvas id="CanvasGallery" class="canvas" width="1024px" height="768px"></canvas>
+        </div>
+    </div>
+
+    <div id="DivErrorMsg" class="ErrorMsg">
+        <canvas id="ErrorMsg" width="1024px" height="768px"></canvas>
+    </div>
+
+    <div id="DivCorrectMsg" class="CorrectMsg">
+        <canvas id="CorrectMsg" width="1024px" height="768px"></canvas>
+    </div>
+
+    <div id="ToolBar" style="display: none;">
+        <div id="ToolBarIcon" class="ToolBarIcon ToolBarAnimation" show="false">
+            <img id="ToolBarSidesImg" src="ToolBar/ToolBarLandscapeL.png" onclick="ToolBarShow()" />
+        </div>
+        <div id="ToolBarMenu" class="ToolBarMenu ToolBarAnimation">
+            <div id="eBookVersion" class="eBookVersion">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul id="ToolBarUl">
+            </ul>
+        </div>
+    </div>
+
+    <!-- <div id="AssistToolBar" style="display: none;">
+        <div id="AssistToolBarIcon" class="AssistToolBarIcon" show="false">
+            <img id="AssistToolBarSidesImg" src="ToolBar/ToolBarLandscapeR.png" onclick="AssistToolBarShow()" />
+        </div>
+        <div id="AssistToolBarMenu" class="AssistToolBarMenu">
+            <ul id="AssistToolBarUl">
+            </ul>
+        </div>
+    </div> -->
+
+    <!-- 頁面目錄 -->
+    <!-- <div>
+        <ul id="JumpIcon" class='JumpIcon' style="display:none;">
+            <li>
+                <img id="btnAll" src="css/Images/allpagebefore.png" onclick="JumpChange(this.id)">
+            </li>
+            <li>
+                <img id="btnBook" src="css/Images/bookpagebefore.png" onclick="JumpChange(this.id)">
+            </li>
+            <li>
+                <img id="btnTab" src="css/Images/tabpageBefore.png" onclick="JumpChange(this.id)">
+            </li>
+            <li>
+                <img id="btnChapter" src="css/Images/chapterpagebefore.png" onclick="JumpChange(this.id)">
+            </li>
+        </ul>
+    </div> -->
+
+    <div id="JumpDiv">
+        <ul id="JumpIcon" class='JumpIcon' style="display:none;">
+            <li v-for="(item, index) in JumpList">
+                <img :id="item.id" :src="item.src" v-on:click="JumpChange(item.id)">
+            </li>
+        </ul>
+    </div>
+
+    <div id="Jumptable" style="display:none;"></div>
+    <div id="JumptableAll" style="display:none;"></div>
+    <div id="Jumptab" style="display: none;"></div>
+
+    <!-- 章節模式 -->
+    <div id="JumpChapter" style="display:none;">
+        <div class="Chapter_header"></div>
+        <div class="Chapter_menu">
+            <ul id="Chapter_ul"></ul>
+        </div>
+    </div>
+
+    <!-- 調色盤-->
+    <div class="colorPicker-layout">
+        <div class="colorPicker-block">
+            <img class="closeColor_btn" src="css/Images/Close.png" onclick="closeColorPicker()">
+            <h1 class="colorPicker_title" data-lang="Palette">調色盤</h1>
+            <!-- <ul class="nav nav-tabs" id="PickerTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="Pen-tab" data-toggle="tab" href="#PenFu" role="tab">畫筆</a>
+                </li>                           
+            </ul> -->
+            <div id="TabCtnPicker" class="colorPicker-cont">
+                <div class="" id="PenFu" role="tabpanePicker" aria-labelledby="Pen-tab">
+                    <div class="colorStateBar">
+                        <div style="opacity:1;height:3px;"></div>
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-6 slider-block">
+                                <p style="margin-bottom:20px" data-lang="BruSize">畫筆尺寸</p>
+                                <input type="range" id="chance_slider" class="custom-range bootstrapSlider" step="1"
+                                    min="4" max="24" value="4">
+                            </div>
+
+                            <div class="col-sm-6 slider-block">
+                                <p style="margin-bottom:20px" data-lang="Trans">透明度</p>
+                                <input type="range" id="chance_sliderop" class="custom-range bootstrapSlider" step="1"
+                                    min="1" max="10" value="10">
+                            </div>
+                        </div>
+
+                        <div class="row DefaultColor">
+
+                            <div class="slider-block col-sm-6">
+                                <p style="margin-bottom:20px" data-lang="Comm">常用顏色</p>
+                                <ul>
+                                    <li class="option" v-on:click="penchane($event)" :style="item.ColorData"
+                                        v-for="(item, index) in DefaultList"></li>
+                                </ul>
+                            </div>
+
+
+                            <div class="slider-block col-sm-5">
+                                <p style="margin-bottom:20px" data-lang="Color">選擇顏色</p>
+                                <div id="picker"></div>
+                                <input type="text" id="TextColor" value="#FE0100" onkeyup="Setcolor(this)" minlength="1"
+                                    maxlength="3" />
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <p style="margin-bottom:20px">形狀</p>
+                                <img id="arbitrarily" class="sharp_btn" src="ToolBar/line.png"
+                                    onclick="changeSharp('arbitrarily')" />
+                                <img id="line" class="sharp_btn" src="ToolBar/beeline.png"
+                                    onclick="changeSharp('line')" />
+                                <img id="circle" class="sharp_btn" src="ToolBar/circle.png"
+                                    onclick="changeSharp('circle')" />
+                                <img id="rect" class="sharp_btn" src="ToolBar/rectangle.png"
+                                    onclick="changeSharp('rect')" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="pickerBtn-block col-sm-12">
+                                <button type="button" class="btn btn-dark" onclick="starDraw()"
+                                    data-lang="Confirm">確定</button>
+                                <button type="button" class="btn btn-dark" onclick="closeColorPicker()"
+                                    data-lang="Cancel">取消</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全文檢索 start-->
+    <div id="dialogSearchText" title="全文檢索" style="display: none;">
+        <div class="cont">
+            <div class="btn_layout">
+                <input id="TextKeyword" type="text">
+                <button id="textSearchBtn" class="btn" style="float:right;" onclick="searchTextList()">搜尋</button>
+                <div class="centent_Text" style="overflow: auto;color:black">
+                    <ul id="searchText-ul" class="list-group"> </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <div class="searchText-layout">
+        <div class="searchText-block">
+            <img class="searchText_btn" src="css/Images/Close.png" onclick="closeSearch()">
+            <h1 class="searchText_title">全文檢索</h1>
+            <div class="searchText-cont">
+                <div class="searchText-bgColor">
+                    <div class="input-group input-group-sm" style="margin: 10px 10px 10px 10px; width: 530px;">
+                        <input id="TextKeyword" type="text" class="form-control" placeholder="請輸入關鍵字"
+                            aria-label="Recipient's username" aria-describedby="button-addon2">
+                        <div class="input-group-append">
+                            <button id="textSearchBtn" class="btn btn-outline-secondary btn-sm" type="button"
+                                id="button-addon2" onclick="searchTextList()">搜尋</button>
+                        </div>
+                    </div>
+                    <div class="centent_Text" style="margin: 10px 10px 10px 10px; width: 530px; height: 380px;">
+                        <ul id="searchText-ul" class="list-group">
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> -->
+    <!-- 全文檢索 End-->
+
+    <!-- Alert -->
+    <div id="BookAlert">
+        <label></label>
+    </div>
+
+    <!-- Confirm -->
+    <div class="confirm">
+        <div class="conts">
+            <p class="confirm_text"></p>
+            <span class="confirm_btns">
+            </span>
+        </div>
+    </div>
+
+    <!-- 測驗題組 -->
+    <div id="endQuiz">
+        <h1 id="QuizTime" style="padding: 30px">Totle：</h1>
+        <h1 id="QuizScroe">Totle：</h1>
+        <input type="button" id="btnConfirm" style="margin: 30px" value="確定" />
+    </div>
+
+    <!-- errorList start-->
+    <div class="windows_list_box">
+        <div class="errorbtndiv">
+            <p style="display: inline;float: left; padding: 10px; margin-top: 8px;margin-left: 5px;color:black">答錯題目列表
+            </p>
+            <div class="close_box" style="position: absolute;margin-left: 86%; margin-top: 2px;z-index:50"
+                ontouchstart="errornarrow()" onclick="errornarrow()">
+                <a href="#" style="position: absolute; padding: 1px;"></a>
+            </div>
+            <div class="centent_box" style="overflow: auto;" ontouchstart="stopDrag();" ontouchend="startDrag();">
+                <ul id="errUL"></ul>
+            </div>
+            <div style="clear:both;"></div>
+        </div>
+        <div class="errorimgDiv" style="display: none;" onclick="errorzoom()" ontouchend="errorzoom()">
+            <img src="css/Images/errorlist.png" style="width:50px;height:50px">
+        </div>
+    </div>
+
+    <!-- 計時器 start-->
+    <div class="allTimer" style="display: none;position: absolute;float:left;top:50px ;left:100px;">
+        <div class="timerbtndiv">
+            <p style=" display: inline;float: left; padding: 10px; margin-top: 8px;margin-left: 5px;color: white">剩餘時間
+            </p>
+            <div class="narrow" style="position: absolute;  margin-left: 86%;    margin-top: 2px;z-index:50"
+                ontouchstart="narrow()" onclick="narrow()">
+                <a href="#" style="position: absolute; padding: 1px;"></a>
+            </div>
+        </div>
+        <div class="timerimgDiv" style="display: none;" onclick="zoom()" ontouchend="zoom()">
+            <img src="ToolBar/timer.png" style="width:50px;height:50px">
+        </div>
+    </div>
+
+    <!-- 註記切換 -->
+    <div class="note_switch_layout">
+        <div class="note_switch_div">
+            <div class="note_switch_cont">
+                <label class="title">本機紀錄</label>
+                <ul class="note_switch_ul">
+                </ul>
+            </div>
+            <div class="note_switch_btns">
+                <button class="btn" onclick="getNote()">確定</button>
+                <button class="btn" onclick="closeNote()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 專用上下頁Icon -->
+    <div class="pageIcons_div" style="display: none;">
+        <img id="pageIcon_l" class="pageIcon_l" src="css/Images/left_page.png" onclick="pageIconClick(true)">
+        <img id="pageIcon_r" class="pageIcon_r" src="css/Images/right_page.png" onclick="pageIconClick(false)">
+    </div>
+
+    <div class="blockView">
+        <div class="loader"></div>
+    </div>
+
+    <!-- 背景調色盤 -->
+    <div class="bgColorPicker-layout">
+        <div class="bgColorPicker-block">
+            <img class="closeColor_btn" src="css/Images/Close.png" onclick="bgColorPickerClose()">
+            <h1 class="bgColorPicker_title">背景調色盤</h1>
+            <div class="bgColorPicker-cont">
+                <div class="bgColorPicker-bgColor">
+                    <div class="bgColorStateBar">
+                        <input id="bgColorSample" type="text" placeholder="文字編輯器內容" disabled="true">
+                    </div>
+                    <div class="slider-block bgslider-block">
+                        <p style="margin-bottom:20px">常用顏色</p>
+                        <ul>
+                            <li class="option" onclick="ChangebgColorBtn(this)" style="background-color:rgb(255,0,0)">
+                            </li>
+                            <li class="option" onclick="ChangebgColorBtn(this)" style="background-color:rgb(255,165,0)">
+                            </li>
+                            <li class="option" onclick="ChangebgColorBtn(this)" style="background-color:rgb(255,255,0)">
+                            </li>
+                            <li class="option" onclick="ChangebgColorBtn(this)" style="background-color:rgb(0,255,0)">
+                            </li>
+                            <li class="option" onclick="ChangebgColorBtn(this)" style="background-color:rgb(0,0,255)">
+                            </li>
+                            <li class="option" onclick="ChangebgColorBtn(this)" style="background-color:rgb(128,0,128)">
+                            </li>
+                            <li class="option" onclick="ChangebgColorBtn(this)" style="background-color:rgb(0,0,0)">
+                            </li>
+                            <li class="option" onclick="ChangebgColorBtn(this)"
+                                style="background-color:rgb(128,128,128)">
+                            </li>
+                            <li class="option" onclick="ChangebgColorBtn(this)"
+                                style="background-color:rgb(255,255,255)">
+                            </li>
+                            <li class="option" onclick="ChangebgColorBtn(this)"
+                                style="background-color:rgb(253, 236, 172)">
+                            </li>
+                            <li class="option" onclick="ChangebgColorBtn(this)"
+                                style="background-color:rgb(203, 186, 122)">
+                            </li>
+                            <li class="option" onclick="ChangebgColorBtn(this)"
+                                style="background-color:rgb(153, 136, 72)">
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="slider-block bgslider-block">
+                        <p style="margin-bottom:20px">選擇顏色</p>
+                        <div id="bgpicker"></div>
+                    </div>
+                    <div class="pickerBtn-block">
+                        <button type="button" class="btn btn-dark" onclick="SetbgColor()">確定</button>
+                        <button type="button" class="btn btn-dark" onclick="bgColorPickerClose()">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 筆記 -->
+    <div class="note-layout">
+        <div class="note-block">
+            <div class="note-border"></div>
+        </div>
+    </div>
+
+    <!-- 輸入頁數 -->
+    <div class="page-layout">
+		<div class="page-block">
+			<img class="inputpage-closeColor_btn" src="css/Images/c.png" onclick="closeInputPage()">
+			<h1 class="inputPage_title">輸入頁碼</h1>
+			<input class="pageNumber" type="text" value="1">
+			<button class="picker_btn" onclick="inputPage()">確定</button>
+		</div>
+	</div>
+
+    <!-- 計時器 -->
+    <div class="timer_layout">
+        <div class="timer_block">
+            <img class="closeColor_btn" src="css/Images/Close.png" onclick="closeTimer()">
+            <h1 class="timer_title">計時器</h1>
+            <div class="inputs">
+                <input class="time_input time_h" type="text" value="00">：
+                <input class="time_input time_m" type="text" value="00">：
+                <input class="time_input time_s" type="text" value="00">
+            </div>
+            <div style="margin-top: 20px;">
+                <button type="button" class="btn btn-primary btn-lg mx-2 timer_start" onclick="startTimer()">開始</button>
+                <button type="button" class="btn btn-danger btn-lg mx-2 timer_reset" onclick="resetTimer()">重設</button>
+                <button type="button" class="btn btn-dark btn-lg mx-2" onclick="closeTimer()">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 選號器 -->
+    <div class="selector_layout">
+        <div class="selector_block">
+            <img class="closeColor_btn" src="css/Images/Close.png" onclick="closeSelector()">
+            <h1 class="selector_title">選號器</h1>
+            <label>請設定開始號碼、結束號碼與所需的號碼個數</label>
+            <div class="selector_inputs form-inline">
+                <label class="my-1 mr-2">開始號碼</label>
+                <input class="form-control selector_min my-1 mr-sm-2" value="1" type="number" min="1" max="99"
+                    minlength="1" maxlength="2">～
+                <label class="my-1 mr-2">結束號碼</label>
+                <input class="form-control selector_max my-1 mr-sm-2" value="50" type="number" min="1" max="99"
+                    minlength="1" maxlength="2">
+            </div>
+            <div class="selector_start">
+                <div class="form-inline">
+                    <label class="my-1 mr-2">分組設定</label>
+                    <select class="selector_group custom-select my-1 mr-sm-2" onchange="$('.selector_count').val(0)">
+                        <option value=""></option>
+                        <option value="1">01</option>
+                        <option value="2">02</option>
+                        <option value="3">03</option>
+                        <option value="4">04</option>
+                        <option value="5">05</option>
+                        <option value="6">06</option>
+                        <option value="7">07</option>
+                        <option value="8">08</option>
+                        <option value="9">09</option>
+                        <option value="10">10</option>
+                    </select>
+                    <label class="my-1 mr-2">號碼個數</label>
+                    <select class="selector_count custom-select my-1 mr-sm-2" onchange="$('.selector_group').val(0)">
+                        <option value=""></option>
+                        <option value="1" selected>01</option>
+                        <option value="2">02</option>
+                        <option value="3">03</option>
+                        <option value="4">04</option>
+                        <option value="5">05</option>
+                        <option value="6">06</option>
+                        <option value="7">07</option>
+                        <option value="8">08</option>
+                        <option value="9">09</option>
+                        <option value="10">10</option>
+                    </select>
+                    <label class="my-1 mr-2">排序</label>
+                    <select id="selectSort" class="custom-select my-1 mr-sm-2">
+                        <option value="true" selected>是</option>
+                        <option value="false">否</option>
+                    </select>
+                    <!-- <label class="switch">
+                        <input id="selectSort" type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label> -->
+                </div>
+                <div>
+                    <button type="button" class="btn btn-primary btn-lg mx-2" onclick="startRandomNumber()">開始</button>
+                    <button type="button" class="btn btn-danger btn-lg mx-2" onclick="resetSelector()">重置</button>
+                </div>
+            </div>
+            <hr width="100%">
+            <div class="ansContent">
+                <div class="selector_answer" readonly>
+                    <ul id="list-answer" class="list-group list-group-flush">
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 插入檔案 -->
+    <input hidden id="fileinput" type="file" onchange="handleFiles(this.files)"
+        accept=".ppt,.pptx,.doc,.docx,.pdf,.mp4,image/*">
+
+    <!-- 插入超連結 -->
+    <div class="inputLink-layout">
+        <div class="link-block">
+            <img class="closeColor_btn" src="css/Images/Close.png" onclick="closeLink()">
+            <h1 class="inputLink_title">插入超連結</h1>
+            <div class="link-inputs">
+                <div class="form-group">
+                    <label for="linktitle">標題</label>
+                    <input type="text" class="link-title form-control" id="linktitle">
+                </div>
+                <div class="form-group">
+                    <label for="linkurl">網址</label>
+                    <input type="text" class="link-input form-control" id="linkurl">
+                </div>
+            </div>
+            <div>
+                <button class="selector_btn" onclick="submitLink()">確定</button>
+                <button class="selector_btn" onclick="closeLink()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 班級進度 -->
+    <div class="class-layout">
+        <div class="class-block">
+            <img class="closeColor_btn" src="css/Images/Close.png" onclick="closeClassProgress()">
+            <h1 class="inputLink_title">班級進度</h1>
+            <div class="class-table-div">
+                <table class="class-table">
+                    <tr>
+                        <th>日期</th>
+                        <th>班級</th>
+                    </tr>
+                </table>
+                <div class="class-noContent">暫無班級進度</div>
+            </div>
+            <div>
+                <button class="selector_btn" onclick="createClassProgress()">新增班級</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 白板 -->
+    <div class="whiteboard-layout">
+        <div class="whiteboard-block">
+            <img class="closeColor_btn" src="css/Images/Close.png" onclick="closeWhiteboard()">
+            <div class="whiteboard-btns">
+                <img src="ToolBar/ArrowBefore.png" name="Arrow" onclick="whiteboardMoveToggle(this)">
+                <img src="ToolBar/BlackBefore.png" id="setWhiteboardBlockPen" name="Black" onclick="whiteboardPenToggle(this)"
+                    style="color: rgb(0, 0, 0);">
+                <img src="ToolBar/BlueBefore.png" name="Blue" id="setWhiteboardBluePen" onclick="whiteboardPenToggle(this)"
+                    style="color: rgb(13, 52, 135);">
+                <img src="ToolBar/RedBefore.png" name="Red" id="setWhiteboardRedPen" onclick="whiteboardPenToggle(this)"
+                    style="color: rgb(198, 31, 25)">
+                <img src="ToolBar/YellowBefore.png" name="Yellow" id="setWhiteboardYellowPen" onclick="whiteboardPenToggle(this)"
+                    style="color: rgb(237, 215, 16);">
+                <img src="ToolBar/GreenBefore.png" name="Green" id="setWhiteboardGreenPen" onclick="whiteboardPenToggle(this)"
+                    style="color: rgb(33, 198, 83);">
+                <img src="ToolBar/TextBefore.png" name="Text" onclick="whiteboardTextToggle(this)">
+            </div>
+            <h1 class="inputLink_title">白板</h1>
+            <div class="whiteboard-cont">
+                <canvas class="whiteboardPad" width="980px" height="700px"></canvas>
+                <div class="whiteboard-texts"></div>
+            </div>
+        </div>
+    </div>
+
+    <!--文字設定-->
+    <div class="textconfig-layout">
+        <div class="textconfig-block">
+            <img class="closeColor_btn" src="css/Images/c.png" onclick="closeTextConfigboard()">
+            <h2 class="inputLink_title">文字設定</h2>
+            <div class="textconfig-cont">
+                <div>
+                    <label>文字大小：</label>
+                    <input type="radio" id="textS" name="textSize" value="16px" onclick="textradio(this)" checked><label
+                        for="textS">小</label>
+                    <input type="radio" id="textM" name="textSize" value="20px" onclick="textradio(this)"><label
+                        for="textM">中</label>
+                    <input type="radio" id="textL" name="textSize" value="24px" onclick="textradio(this)"><label
+                        for="textL">大</label>
+                </div>
+                <div>
+                    <label>文字顏色：</label>
+                    <div id="textColor" style="background-color: rgb(0, 0, 0);"></div>
+                </div>
+                <div></div>
+                <div>
+                    <ul>
+                        <li class="textOption" onclick="textchange(this)" style="background-color: rgb(0, 0, 0);"></li>
+                        <li class="textOption" onclick="textchange(this)" style="background-color: rgb(13, 52, 135);">
+                        </li>
+                        <li class="textOption" onclick="textchange(this)" style="background-color: rgb(198, 31, 25)">
+                        </li>
+                        <li class="textOption" onclick="textchange(this)" style="background-color: rgb(237, 215, 16);">
+                        </li>
+                        <li class="textOption" onclick="textchange(this)" style="background-color: rgb(33, 198, 83);">
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 文字白板 -->
+    <div class="textboard-layout">
+        <div class="textboard-block">
+            <img class="closeColor_btn" src="css/Images/Close.png" onclick="closeTextboard()">
+            <h1 class="inputLink_title">文字白板</h1>
+            <div class="textboard-cont">
+                <textarea id="textboard-input"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- 手寫白板 -->
+    <div class="canvasboard-layout">
+        <div class="canvasboard-block">
+            <img class="closeColor_btn" src="css/Images/Close.png" onclick="closeCanvasboard()">
+            <h1 class="inputLink_title">手寫白板</h1>
+            <div class="canvasboard-cont">
+                <canvas class="canvasboard" unselectable="on" width="1024px" height="700px"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 編修檔 -->
+    <div class="editor-layout">
+        <div class="editor-block">
+            <img class="closeColor_btn" src="css/Images/Close.png" onclick="closeInputPage()">
+            <h1 class="inputPage_title">上傳編修檔</h1>
+            <input class="editor-input" type="text">
+            <div style="margin-top: 10px;">
+                <button class="picker_btn editor_submit" onclick="uploadGoogleDrive()">確定</button>
+                <button class="picker_btn" onclick="$('.editor-layout').toggle()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注記移動 -->
+    <div class="noteMove-layout">
+        <div class="noteMove-conts"></div>
+        <img class="closenoteMove_btn" src="css/Images/Close.png" onclick="closenoteMove()">
+    </div>
+
+    <!-- 操作指引 - 離線 -->
+    <div class="operating operating-layout-off">
+        <img id="operating-off-img1" class="operating-img" src="ToolBar/Operating/operating-off-01.jpg"
+            onclick="operatingOffTrunPage(1)">
+        <img id="operating-off-img2" class="operating-img" src="ToolBar/Operating/operating-off-02.jpg"
+            onclick="operatingOffTrunPage(2)">
+        <img id="operating-off-img3" class="operating-img" src="ToolBar/Operating/operating-off-03.jpg"
+            onclick="operatingOffTrunPage(3)">
+        <img id="operating-off-img4" class="operating-img" src="ToolBar/Operating/operating-off-04.jpg"
+            onclick="operatingOffTrunPage(4)">
+        <img id="operating-off-img5" class="operating-img" src="ToolBar/Operating/operating-off-05.jpg"
+            onclick="operatingOffTrunPage(5)">
+    </div>
+
+    <!-- 操作指引老師 - web -->
+    <div class="operating operating-layout-t">
+        <img id="operating-t-img1" class="operating-img" src="ToolBar/Operating/operating-t-01.jpg"
+            onclick="operatingOffWTTrunPage(1)">
+        <img id="operating-t-img2" class="operating-img" src="ToolBar/Operating/operating-t-02.jpg"
+            onclick="operatingOffWTTrunPage(2)">
+        <img id="operating-t-img3" class="operating-img" src="ToolBar/Operating/operating-t-03.jpg"
+            onclick="operatingOffWTTrunPage(3)">
+        <img id="operating-t-img4" class="operating-img" src="ToolBar/Operating/operating-t-04.jpg"
+            onclick="operatingOffWTTrunPage(4)">
+        <img id="operating-t-img5" class="operating-img" src="ToolBar/Operating/operating-t-05.jpg"
+            onclick="operatingOffWTTrunPage(5)">
+    </div>
+
+    <!-- 操作指引學生 - web -->
+    <div class="operating operating-layout">
+        <img id="operating-img1" class="operating-img" src="ToolBar/Operating/operating-01.jpg"
+            onclick="operatingOffWSTrunPage(1)">
+        <img id="operating-img2" class="operating-img" src="ToolBar/Operating/operating-02.jpg"
+            onclick="operatingOffWSTrunPage(2)">
+        <img id="operating-img3" class="operating-img" src="ToolBar/Operating/operating-03.jpg"
+            onclick="operatingOffWSTrunPage(3)">
+        <img id="operating-img4" class="operating-img" src="ToolBar/Operating/operating-04.jpg"
+            onclick="operatingOffWSTrunPage(4)">
+        <img id="operating-img5" class="operating-img" src="ToolBar/Operating/operating-05.jpg"
+            onclick="operatingOffWSTrunPage(5)">
+    </div>
+
+   <!-- 操作指引老師 - pc -->
+	<div class="operating operating-layout-pc-t">
+		<img id="operating-pc-t-img1" class="operating-img" src="ToolBar/Operating/operating-pc-t-01.jpg"
+			onclick="operatingTrunPage('operating-layout-pc-t', 'operating-pc-t-img', 1)">
+		<img id="operating-pc-t-img2" class="operating-img" src="ToolBar/Operating/operating-pc-t-02.jpg"
+			onclick="operatingTrunPage('operating-layout-pc-t', 'operating-pc-t-img', 2)">
+		<img id="operating-pc-t-img3" class="operating-img" src="ToolBar/Operating/operating-pc-t-03.jpg"
+			onclick="operatingTrunPage('operating-layout-pc-t', 'operating-pc-t-img', 3)">
+		<img id="operating-pc-t-img4" class="operating-img" src="ToolBar/Operating/operating-pc-t-04.jpg"
+			onclick="operatingTrunPage('operating-layout-pc-t', 'operating-pc-t-img', 4)">
+        <img id="operating-pc-t-img5" class="operating-img" src="ToolBar/Operating/operating-pc-t-05.jpg"
+			onclick="operatingTrunPage('operating-layout-pc-t', 'operating-pc-t-img', 5)">
+        <img id="operating-pc-t-img6" class="operating-img" src="ToolBar/Operating/operating-pc-t-06.jpg"
+			onclick="operatingTrunPage('operating-layout-pc-t', 'operating-pc-t-img', 6)">
+	</div>
+
+	<!-- 操作指引學生 - pc -->
+	<div class="operating operating-layout-pc">
+		<img id="operating-pc-img1" class="operating-img" src="ToolBar/Operating/operating-pc-01.jpg"
+			onclick="operatingTrunPage('operating-layout-pc', 'operating-pc-img', 1)">
+		<img id="operating-pc-img2" class="operating-img" src="ToolBar/Operating/operating-pc-02.jpg"
+			onclick="operatingTrunPage('operating-layout-pc', 'operating-pc-img', 2)">
+		<img id="operating-pc-img3" class="operating-img" src="ToolBar/Operating/operating-pc-03.jpg"
+			onclick="operatingTrunPage('operating-layout-pc', 'operating-pc-img', 3)">
+		<img id="operating-pc-img4" class="operating-img" src="ToolBar/Operating/operating-pc-04.jpg"
+			onclick="operatingTrunPage('operating-layout-pc', 'operating-pc-img', 4)">
+        <img id="operating-pc-img5" class="operating-img" src="ToolBar/Operating/operating-pc-05.jpg"
+			onclick="operatingTrunPage('operating-layout-pc', 'operating-pc-img', 5)">
+         <img id="operating-pc-img6" class="operating-img" src="ToolBar/Operating/operating-pc-06.jpg"
+			onclick="operatingTrunPage('operating-layout-pc', 'operating-pc-img', 6)">
+	</div>
+
+    <!-- 音檔 -->
+    <div class="audio-layout">
+        <div class="audio-block">
+            <div class="audio-title">
+                <span class="audio-slow">慢速</span>
+                <img class="audio-button" src="ToolBar/audiostop.png">
+                <span class="audio-general" style="color: #00d000">一般</span>
+            </div>
+            <div class="audio-content">
+                <span class="audio-time">00:00</span>
+                <input class="audio-range" type="range" value="0" min="0" oninput="audioChangeCurrentTime()"
+                    onchange="audioChangeCurrentTime()">
+                <span class="audio-allTime">00:00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 書籤標記 -->
+    <div class="tab-layout">
+        <div class="tab-block">
+            <div class="tab-title-layout">
+                <h1 class="tab_title">書籤標記</h1>
+                <img class="tab-close-btn" src="css/Images/c.png" onclick="closeTabTable()">
+            </div>
+            <div class="tab-table-div">
+                <table class="tab-table">
+                    <thead>
+                        <tr>
+                            <th width="150px" style="text-align: center;">日期</th>
+                            <th style="text-align: center;">班級</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tap_body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 書籤顏色 -->
+    <div class="color-layout">
+        <div class="color-block">
+            <div class="color-row">
+                <div class="color1" onclick="closeTabColor('#ab0000')"></div>
+                <div class="color2" onclick="closeTabColor('#81950a')"></div>
+                <div class="color3" onclick="closeTabColor('#00843e')"></div>
+                <div class="color4" onclick="closeTabColor('#0086a1')"></div>
+            </div>
+            <div class="color-row">
+                <div class="color5" onclick="closeTabColor('#0025b9')"></div>
+                <div class="color6" onclick="closeTabColor('#9401c6')"></div>
+                <div class="color7" onclick="closeTabColor('#c98f00')"></div>
+                <div class="color8" onclick="closeTabColor('#080808')"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 回到書櫃 -->
+	<div class="bookstore-layout">
+		<div class="bookstore-block">
+			<div class="bookstore-title-layout">
+				<h1 class="bookstore_title">小提醒，您尚未儲存註記喔!</h1>
+				<img class="bookstore-close-btn" src="css/Images/c.png" onclick="closeBookStore()">
+			</div>
+			<div class="bookstore-content">
+				<button class="bookstore_btn bookstore_tap_btn" onclick="closeBookAndOpenTab()">新增頁籤</button>
+				<button class="bookstore_btn" onclick="saveAndLeave()">儲存本機</button>
+				<button class="bookstore_btn bookstore_upload_btn" onclick="bookStoreUploadNote()">上傳紀錄</button>
+				<button class="bookstore_btn" onclick="CallExToExit()">直接離開</button>
+			</div>
+		</div>
+	</div>
+
+    <script type="text/javascript" src="js/Jquery/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript" src="js/Jquery/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/Jquery/jquery.blockUI.js"></script>
+    <script type="text/javascript" src="js/Jquery/jquery.transit.js"></script>
+    <script type="text/javascript" src="js/Jquery/jquery.simple.timer.js"></script>
+    <script type="text/javascript" src="js/Jquery/jquery.flipster.js"></script>
+    <script type="text/javascript" src="js/Jquery/jquery.ui.touch-punch.min.js"></script>
+
+    <script type="text/javascript" src="js/Vue/vue.min.js"></script>
+    <script type="text/javascript" src="js/Vue/VueColor.js"></script>
+    <script type="text/javascript" src="js/Vue/VueJump.js"></script>
+
+    <script type="text/javascript" src="js/3rdParty/base64.js"></script>
+    <script type="text/javascript" src="js/3rdParty/detect.min.js"></script>
+    <script type="text/javascript" src="js/3rdParty/farbtastic.js"></script>
+    <script type="text/javascript" src="js/3rdParty/hammer.js"></script>
+    <script type="text/javascript" src="js/3rdParty/moment.min.js"></script>
+    <script type="text/javascript" src="js/3rdParty/polifill.js"></script>
+    <script type="text/javascript" src="js/3rdParty/xml2json.js"></script>
+
+    <script type="text/javascript" src="js/bootstrap/popper.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/summernote/summernote-bs4-es5.min.js"></script>
+    <script type="text/javascript" src="js/summernote/lang/summernote-zh-TW.min.js"></script>
+
+    <script type="text/javascript" src="js/EaselJS/easeljs.min.js"></script>
+    <script type="text/javascript" src="js/EaselJS/tweenjs.min.js"></script>
+    <script type="text/javascript" src="js/EaselJS/preloadjs.min.js"></script>
+
+    <script type="text/javascript" src="indexXmlStr.js"></script>
+    <!-- <script type="text/javascript" src="Note/userCreateObjectDictionaryXmlStr.js"></script> -->
+
+    <script type="text/javascript" src="js/XmlToJson.js"></script>
+    <script type="text/javascript" src="js/JsonToHamaList.js"></script>
+    <script type="text/javascript" src="js/GalleryEvent.js"></script>
+    <script type="text/javascript" src="js/MarkLayer.js"></script>
+    <script type="text/javascript" src="js/MaskingLayer.js"></script>
+    <script type="text/javascript" src="js/ErasingPicture.js"></script>
+    <script type="text/javascript" src="js/AdditionalFile.js"></script>
+    <script type="text/javascript" src="js/HyperLink.js"></script>
+    <script type="text/javascript" src="js/RotationImage.js"></script>
+    <script type="text/javascript" src="js/SlideShow.js"></script>
+    <script type="text/javascript" src="js/ScrollObject.js"></script>
+    <script type="text/javascript" src="js/VideoLayer.js"></script>
+    <script type="text/javascript" src="js/DrawCanvas.js"></script>
+    <script type="text/javascript" src="js/Animate.js"></script>
+    <script type="text/javascript" src="js/HamaReceive.js"></script>
+    <script type="text/javascript" src="js/Zoom.js"></script>
+    <script type="text/javascript" src="js/Save.js"></script>
+    <script type="text/javascript" src="js/insertImage.js"></script>
+
+    <script type="text/javascript" src="js/Introduction/Introduction.js"></script>
+    <script type="text/javascript" src="js/Introduction/IntroductionEvent.js"></script>
+
+    <script type="text/javascript" src="js/Panorama/jCube.js"></script>
+    <script type="text/javascript" src="js/Panorama/jRoom.js"></script>
+    <script type="text/javascript" src="js/Panorama/jTouch.js"></script>
+    <script type="text/javascript" src="js/Panorama/Panorama.js"></script>
+
+    <script type="text/javascript" src="js/Quiz/QuizModule.js"></script>
+    <script type="text/javascript" src="js/Quiz/TouchModule.js"></script>
+    <script type="text/javascript" src="js/Quiz/Connector.js"></script>
+    <script type="text/javascript" src="js/Quiz/ImgDraggable.js"></script>
+    <script type="text/javascript" src="js/Quiz/InputModule.js"></script>
+    <script type="text/javascript" src="js/Quiz/ExamModule.js"></script>
+
+    <script type="text/javascript" src="js/Toolbar/HamaSetting.js"></script>
+    <script type="text/javascript" src="js/Toolbar/ToolBarConfig.js"></script>
+    <script type="text/javascript" src="js/Toolbar/ToolBarSet.js"></script>
+
+    <script type="text/javascript" src="js/Feature/blackboard.js"></script>
+    <script type="text/javascript" src="js/Feature/JumpPage.js"></script>
+    <script type="text/javascript" src="js/Feature/popupMsg.js"></script>
+    <script type="text/javascript" src="js/Feature/randNum.js"></script>
+    <script type="text/javascript" src="js/Feature/Timer.js"></script>
+    <script type="text/javascript" src="js/Feature/ToolEraser.js"></script>
+    <script type="text/javascript" src="js/Feature/ToolPen.js"></script>
+    <script type="text/javascript" src="js/Feature/Laser.js"></script>
+    <script type="text/javascript" src="js/Feature/PenMove.js"></script>
+    <script type="text/javascript" src="js/Feature/txtCanvas.js"></script>
+    <script type="text/javascript" src="js/Feature/txtComment.js"></script>
+    <script type="text/javascript" src="js/Feature/txtNote.js"></script>
+    <script type="text/javascript" src="js/Feature/txtPopup.js"></script>
+    <script type="text/javascript" src="js/Feature/txtShare.js"></script>
+    <script type="text/javascript" src="js/Feature/whiteBoard.js"></script>
+
+    <script type="text/javascript" src="js/threejs/three.js"></script>
+    <script type="text/javascript" src="js/threejs/StereoEffect.js"></script>
+    <script type="text/javascript" src="js/threejs/DeviceOrientationControls.js"></script>
+    <script type="text/javascript" src="js/threejs/OrbitControls.js"></script>
+    <script type="text/javascript" src="js/threejs/CSS3DRenderer.js"></script>
+    <script type="text/javascript" src="js/threejs/Cardboard.js"></script>
+
+    <script type="text/javascript" src="js/Localization/Localization.js"></script>
+    <script type="text/javascript" src="js/Customize/customize.js"></script>
+
+    <script type="text/javascript" src="js/Main.js"></script>
+
+    <script type="text/javascript" src="TextlocationList.js"></script>
+    <script type="text/javascript" src="https://rd.sanmin.com.tw/api/sanmin.js"></script>
+</body>
+
+</html>
