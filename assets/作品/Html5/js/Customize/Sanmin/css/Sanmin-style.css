@@ -1,0 +1,50 @@
+input[type="range"] {
+  -webkit-appearance: none;
+  border-radius: 5px;
+  box-shadow: inset 0 0 5px #333;
+  background-color: #999;
+  height: 10px;
+  vertical-align: middle;
+  padding: 0px 0px 0px 0px;
+}
+
+#chance_slider,
+#chance_sliderop {
+  width: 80%;
+  margin-left: 0;
+}
+
+#picker {
+  margin-left: 0;
+}
+
+/* 全文檢索輸入框 */
+#TextKeyword {
+  width: 60%;
+  border-radius: 5px;
+}
+
+/* 全文檢索按鈕 */
+#textSearchBtn {
+  /* width: 30%; */
+  border-radius: 5px;
+}
+
+
+/* 白板文字輸入框樣式 */
+.text-block {
+  outline: none;
+  /* border: 0; */
+  background-color: transparent;
+  position: absolute;
+  /* z-index: 1; */
+  /* overflow: hidden; */
+  /* resize:none; */
+}
+
+.text-block:focus {
+  border: 2px solid #ccc;
+  resize: horizontal;
+}
+
+
